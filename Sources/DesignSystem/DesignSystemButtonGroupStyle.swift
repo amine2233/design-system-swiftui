@@ -8,37 +8,40 @@
 import SwiftUI
 
 public struct DesignSystemButtonGroupStyle: ButtonStyle {
-
-    var sizesStyle: SizeStyle
-    var colorStyle: Style
+    var size: DesignSystem.Size
+    var style: DesignSystem.Style
+    var design: DesignSystem.ContentMode
     var icon: Image? = nil
     var action: ()->() = {}
-    
+
+    @Environment(\.colorTheme) private var colorTheme
+
     public init(
-        sizesStyle: DesignSystemButtonGroupStyle.SizeStyle,
-        colorStyle: DesignSystemButtonGroupStyle.Style,
+        size: DesignSystem.Size,
+        style: DesignSystem.Style,
+        design: DesignSystem.ContentMode = .fill,
         icon: Image? = nil,
         action: @escaping () -> () = {}
     ) {
-        self.sizesStyle = sizesStyle
-        self.colorStyle = colorStyle
+        self.size = size
+        self.style = style
+        self.design = design
         self.icon = icon
         self.action = action
     }
     
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            
-            .font(.system(size: sizesStyle.fontSize, weight: .bold))
-            .frame(width: sizesStyle.frameWidth, height: sizesStyle.frameWidth)
-            .foregroundColor(configuration.isPressed ? colorStyle.activeForeground : colorStyle.defaultForeground)
-            .background(configuration.isPressed ? colorStyle.activeBackground : colorStyle.defaultBackground)
-            .border(colorStyle.defaultForeground, width: (colorStyle == .outline && !configuration.isPressed) ? 1 : 0)
+            .font(.system(size: size.fontSize, weight: .bold))
+            .frame(width: size.frameWidth, height: size.frameWidth)
+            .foregroundColor(configuration.isPressed ? colorTheme.activePrimary : colorTheme.activeBasic)
+            .background(configuration.isPressed ? style.color(colorTheme).opacity(0.5): style.color(colorTheme))
+            .border(style.color(colorTheme), width: (design == .outline && !configuration.isPressed) ? 1 : 0)
     }
 }
 
 struct DesignSystemButtonGroupStyle_Previews: PreviewProvider {
-    typealias designSystemSize = DesignSystemButtonGroupStyle.SizeStyle
+    typealias designSystemSize = DesignSystem.Size
     
     static var previews: some View {
         
@@ -47,33 +50,47 @@ struct DesignSystemButtonGroupStyle_Previews: PreviewProvider {
             HStack(spacing: 20) {
                 
                 Button(action : {  }, label: {Text("G")})
-                    .buttonStyle(DesignSystemButtonGroupStyle(sizesStyle: .giant, colorStyle: .primary))
+                    .buttonStyle(DesignSystemButtonGroupStyle(
+                        size: .extraLarge, style: .primary
+                    ))
                 
                 Button(action : {}, label: {Text("L")})
-                    .buttonStyle(DesignSystemButtonGroupStyle(sizesStyle: .large, colorStyle: .basic ))
+                    .buttonStyle(DesignSystemButtonGroupStyle(
+                        size: .large, style: .default
+                    ))
             }
         
             HStack(spacing: 20) {
                 Button(action : {}, label: {Text("M")})
-                    .buttonStyle(DesignSystemButtonGroupStyle(sizesStyle: .medium, colorStyle: .outline ))
+                    .buttonStyle(DesignSystemButtonGroupStyle(
+                        size: .medium, style: .default, design: .outline
+                    ))
                 
                 Button(action : {}, label: {Text("S")})
-                    .buttonStyle(DesignSystemButtonGroupStyle(sizesStyle: .small, colorStyle: .basic ))
+                    .buttonStyle(DesignSystemButtonGroupStyle(
+                        size: .small, style: .default
+                    ))
             }
             
             HStack(spacing: 20) {
                 
                 Button(action : {}, label: {Text("T")})
-                    .buttonStyle(DesignSystemButtonGroupStyle(sizesStyle: .tiny, colorStyle: .primary ))
+                    .buttonStyle(DesignSystemButtonGroupStyle(
+                        size: .tiny, style: .primary
+                    ))
             }
             
             HStack(spacing: 20) {
                 
                 Button(action : {}, label: {Image(systemName: "star.fill").designSystemSquare(width: designSystemSize.large.iconScale)})
-                    .buttonStyle(DesignSystemButtonGroupStyle(sizesStyle: .medium, colorStyle: .basic))
+                    .buttonStyle(DesignSystemButtonGroupStyle(
+                        size: .medium, style: .default
+                    ))
                 
                 Button(action : {}, label: {Image(systemName: "person").designSystemSquare(width: designSystemSize.large.iconScale)})
-                    .buttonStyle(DesignSystemButtonGroupStyle(sizesStyle: .medium, colorStyle: .outline))
+                    .buttonStyle(DesignSystemButtonGroupStyle(
+                        size: .medium, style: .default
+                    ))
                 
                 Button(action : {},
                        label: {
@@ -85,8 +102,8 @@ struct DesignSystemButtonGroupStyle_Previews: PreviewProvider {
                        })
                     .buttonStyle(
                         DesignSystemButtonGroupStyle(
-                            sizesStyle: .medium,
-                            colorStyle: .primary
+                            size: .medium,
+                            style: .primary
                         )
                     )
             }

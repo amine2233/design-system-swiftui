@@ -8,21 +8,17 @@
 import SwiftUI
 
 public struct DesignSystemTextField: View {
-    
-    public enum Style {
-        case defaultStyle, primary, disabled, success, warning, danger, info
-    }
-    
-    var style: Style
+    var style: DesignSystem.Style
     var titleKey: LocalizedStringKey
     var icon: Image? = nil
     var commit: ()->() = { }
     @State private var focused: Bool = false
     @Binding var input: String
-    
+    @Environment(\.colorTheme) private var colorTheme: ColorTheme
+
     // MARK: Inits
     
-    public init(_ titleKey: LocalizedStringKey, input: Binding<String>, style: Style = .defaultStyle, icon: Image? = nil, onCommit: @escaping ()->() = { }) {
+    public init(_ titleKey: LocalizedStringKey, input: Binding<String>, style: DesignSystem.Style = .default, icon: Image? = nil, onCommit: @escaping ()->() = { }) {
         self.titleKey = titleKey
         self._input = input
         self.style = style
@@ -32,7 +28,7 @@ public struct DesignSystemTextField: View {
     
     // MARK: Inits
     
-    public init(_ text: String, input: Binding<String>, style: Style = .defaultStyle, icon: Image? = nil, onCommit: @escaping ()->() = { }) {
+    public init(_ text: String, input: Binding<String>, style: DesignSystem.Style = .default, icon: Image? = nil, onCommit: @escaping ()->() = { }) {
         self.titleKey = LocalizedStringKey(text)
         self._input = input
         self.style = style
@@ -40,144 +36,31 @@ public struct DesignSystemTextField: View {
         self.commit = onCommit
     }
     
-    // MARK:  Function declarations
+    // MARK:  Body
     
-    fileprivate func defaultStyle() -> some View {
+    public var body: some View {
         HStack {
             ZStack(alignment: .leading) {
-                if input.isEmpty { Text(titleKey).foregroundColor(.designSystemBasic) }
+                if input.isEmpty { Text(titleKey).foregroundColor(colorTheme.basic) }
                 TextField("", text: $input, onEditingChanged: { editingChanged in
                     self.focused = editingChanged
                     print(editingChanged ? "TextField focused" : "TextField focus removed")
                 }, onCommit: commit)
                 .textFieldStyle(PlainTextFieldStyle())
-                .foregroundColor(.designSystemFontStd)
+                .foregroundColor(colorTheme.fontDisabled)
             }
-            if focused { icon.imageScale(.large).foregroundColor(.designSystemPrimary) }
-            else { icon.imageScale(.large).foregroundColor(.designSystemBasic) }
+            if focused { icon.imageScale(.large).foregroundColor(style.color(colorTheme)) }
+            else { icon.imageScale(.large).foregroundColor(colorTheme.basic) }
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 5)
-                .foregroundColor(Color.designSystemBasic.opacity(self.focused ? 0 : 0.1))
+                .foregroundColor(style.color(colorTheme).opacity(self.focused ? 0 : 0.1))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 5)
-                .stroke(self.focused ? Color.designSystemPrimary : Color.designSystemBasic.opacity(0.4), lineWidth: 1)
+                .stroke(self.focused ? style.color(colorTheme) : colorTheme.basic.opacity(0.4), lineWidth: 1)
         )
-    }
-    
-    fileprivate func primary() -> some View {
-        HStack {
-            ZStack(alignment: .leading) {
-                if input.isEmpty { Text(titleKey).foregroundColor(.designSystemPrimary) }
-                TextField("", text: $input, onEditingChanged: { editingChanged in
-                    self.focused = editingChanged
-                    print(editingChanged ? "TextField focused" : "TextField focus removed")
-                }, onCommit: commit)
-                .textFieldStyle(PlainTextFieldStyle())
-                .foregroundColor(.designSystemFontStd)
-            }
-             icon.imageScale(.large).foregroundColor(.designSystemPrimary)
-        }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 5)
-        .foregroundColor(Color.designSystemBasic.opacity(self.focused ? 0 : 0.1)))
-        .overlay(RoundedRectangle(cornerRadius: 5)
-        .stroke(Color.designSystemPrimary, lineWidth: 1))
-    }
-    
-    fileprivate func success() -> some View {
-        HStack {
-            ZStack(alignment: .leading) {
-                if input.isEmpty { Text(titleKey).foregroundColor(.designSystemBasic) }
-                TextField("", text: $input, onEditingChanged: { editingChanged in
-                    self.focused = editingChanged
-                    print(editingChanged ? "TextField focused" : "TextField focus removed")
-                }, onCommit: commit)
-                .textFieldStyle(PlainTextFieldStyle())
-                .foregroundColor(.designSystemFontStd)
-            }
-            icon.imageScale(.large).foregroundColor(.designSystemSuccess)
-        }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 5)
-        .foregroundColor(Color.designSystemBasic.opacity(self.focused ? 0 : 0.1)))
-        .overlay(RoundedRectangle(cornerRadius: 5)
-        .stroke(Color.designSystemSuccess, lineWidth: 1))
-    }
-    
-    fileprivate func warning() -> some View {
-        HStack {
-            ZStack(alignment: .leading) {
-                if input.isEmpty { Text(titleKey).foregroundColor(Color.designSystemBasic) }
-                TextField("", text: $input, onEditingChanged: { editingChanged in
-                    self.focused = editingChanged
-                    print(editingChanged ? "TextField focused" : "TextField focus removed")
-                }, onCommit: commit)
-                .textFieldStyle(PlainTextFieldStyle())
-                .foregroundColor(.designSystemFontStd)
-            }
-            icon.imageScale(.large).foregroundColor(.designSystemWarning)
-        }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 5)
-        .foregroundColor(Color.designSystemBasic.opacity(self.focused ? 0 : 0.1)))
-        .overlay(RoundedRectangle(cornerRadius: 5)
-        .stroke(Color.designSystemWarning, lineWidth: 1))
-    }
-    
-    fileprivate func danger() -> some View {
-        HStack {
-            ZStack(alignment: .leading) {
-                if input.isEmpty { Text(titleKey).foregroundColor(.designSystemBasic) }
-                TextField("", text: $input, onEditingChanged: { editingChanged in
-                    self.focused = editingChanged
-                    print(editingChanged ? "TextField focused" : "TextField focus removed")
-                }, onCommit: commit)
-                .textFieldStyle(PlainTextFieldStyle())
-                .foregroundColor(.designSystemFontStd)
-            }
-            icon.imageScale(.large).foregroundColor(.designSystemDanger)
-        }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 5)
-        .foregroundColor(Color.designSystemBasic.opacity(self.focused ? 0 : 0.1)))
-        .overlay(RoundedRectangle(cornerRadius: 5)
-        .stroke(Color.designSystemDanger, lineWidth: 1))
-    }
-    
-    fileprivate func info() -> some View {
-        HStack {
-            ZStack(alignment: .leading) {
-                if input.isEmpty { Text(titleKey).foregroundColor(.designSystemBasic) }
-                TextField("", text: $input, onEditingChanged: { editingChanged in
-                    self.focused = editingChanged
-                    print(editingChanged ? "TextField focused" : "TextField focus removed")
-                }, onCommit: commit)
-                .textFieldStyle(PlainTextFieldStyle())
-                .foregroundColor(.designSystemFontStd)
-            }
-            icon.imageScale(.large).foregroundColor(.designSystemInfo)
-        }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 5)
-        .foregroundColor(Color.designSystemBasic.opacity(self.focused ? 0 : 0.1)))
-        .overlay(RoundedRectangle(cornerRadius: 5)
-        .stroke(Color.designSystemInfo, lineWidth: 1))
-    }
-    
-    // MARK:  Body
-    
-    public var body: some View {
-        switch style {
-        case .primary: return AnyView(primary())
-        case .success: return AnyView(success())
-        case .warning: return AnyView(warning())
-        case .danger: return AnyView(danger())
-        case .info: return AnyView(info())
-        default: return AnyView(defaultStyle())
-        }
     }
 }
 

@@ -10,63 +10,77 @@ import SwiftUI
 // MARK: - Custom Button Styles
 
 struct DesignSystemButtonStyle: ButtonStyle {
-    var color: Color
-    var style: DesignSystemButton.Style
-    
+    private var style: DesignSystem.Style
+    private var design: DesignSystem.ContentMode
+
+    init(style: DesignSystem.Style, design: DesignSystem.ContentMode) {
+        self.style = style
+        self.design = design
+    }
+
     func makeBody(configuration: ButtonStyle.Configuration) -> some View {
-        switch style {
-        case .fill: return AnyView(FillButton(color: color, configuration: configuration))
-        case .outline: return AnyView(OutlineButton(color: color, configuration: configuration))
-        case .ghost: return AnyView(GhostButton(color: color, configuration: configuration))
+        switch design {
+            case .fill: return AnyView(FillButton(style: style, configuration: configuration))
+            case .outline: return AnyView(OutlineButton(style: style, configuration: configuration))
+            case .ghost: return AnyView(GhostButton(style: style, configuration: configuration))
         }
     }
     
     private struct FillButton: View {
-        var color: Color
+        var style: DesignSystem.Style
         let configuration: ButtonStyle.Configuration
+
         @Environment(\.isEnabled) private var isEnabled: Bool
+        @Environment(\.colorTheme) private var colorTheme: ColorTheme
+
         var body: some View {
             configuration.label
                 .designSystemTypography(.s1)
-                .foregroundColor(isEnabled ? .white : .designSystemFontDisabled)
+                .foregroundColor(isEnabled ? .white : colorTheme.fontDisabled)
                 .padding()
-                .frame(minHeight: 56)
-                .background(isEnabled ? color : Color.designSystemBasic.opacity(0.2))
+                .frame(minHeight: 44)
+                .background(isEnabled ? style.color(colorTheme) : colorTheme.basic.opacity(0.2))
                 .cornerRadius(4)
                 .opacity(configuration.isPressed ? 0.7 : 1)
         }
     }
     
     private struct OutlineButton: View {
-        var color: Color
+        var style: DesignSystem.Style
         let configuration: ButtonStyle.Configuration
+
         @Environment(\.isEnabled) private var isEnabled: Bool
+        @Environment(\.colorTheme) private var colorTheme: ColorTheme
+
         var body: some View {
             configuration.label
                 .designSystemTypography(.s1)
-                .foregroundColor(isEnabled ? color : .designSystemFontDisabled)
+                .foregroundColor(isEnabled ? style.color(colorTheme) : colorTheme.fontDisabled)
                 .padding()
-                .frame(minHeight: 56)
-                .background(isEnabled ? color.opacity(0.2) : Color.designSystemBasic.opacity(0.15))
+                .frame(minHeight: 44)
+                .background(isEnabled ? style.color(colorTheme).opacity(0.2) : colorTheme.basic.opacity(0.15))
                 .cornerRadius(4)
                 .overlay(
                     RoundedRectangle(cornerRadius: 4)
-                        .stroke(isEnabled ? color : Color.designSystemBasic.opacity(0.5), lineWidth: 1)
+                        .stroke(isEnabled ? style.color(colorTheme) : colorTheme.basic.opacity(0.5), lineWidth: 1)
                 )
                 .opacity(configuration.isPressed ? 0.7 : 1)
         }
     }
     
     private struct GhostButton: View {
-        var color: Color
+        var style: DesignSystem.Style
         let configuration: ButtonStyle.Configuration
+
         @Environment(\.isEnabled) private var isEnabled: Bool
+        @Environment(\.colorTheme) private var colorTheme: ColorTheme
+
         var body: some View {
             configuration.label
                 .designSystemTypography(.s1)
-                .foregroundColor(isEnabled ? color : .designSystemFontDisabled)
+                .foregroundColor(isEnabled ? style.color(colorTheme) : colorTheme.fontDisabled)
                 .padding()
-                .frame(minHeight: 56)
+                .frame(minHeight: 44)
                 .background(Color.white)
                 .cornerRadius(4)
                 .opacity(configuration.isPressed ? 0.7 : 1)
@@ -78,43 +92,60 @@ struct DesignSystemButtonStyle: ButtonStyle {
 
 extension Button {
     /// Changes the appearance of the button
-    public func style(_ style: DesignSystemButton.Style, color: Color) -> some View {
-        self.buttonStyle(DesignSystemButtonStyle(color: color, style: style))
+    public func designSystem(
+        _ style: DesignSystem.Style,
+        design: DesignSystem.ContentMode
+    ) -> some View {
+        self.buttonStyle(DesignSystemButtonStyle(style: style, design: design))
     }
 }
 
 public struct DesignSystemButton: View {
-    public enum Style {
-        case fill, outline, ghost
-    }
+    @Environment(\.isEnabled) private var isEnabled: Bool
     
     var titleKey: LocalizedStringKey?
     var image: Image?
-    var style: Style = .fill
-    var color: Color = .designSystemPrimary
+    var design: DesignSystem.ContentMode = .fill
+    var style: DesignSystem.Style = .primary
     var action: () -> Void
     var textAndImage: Bool { titleKey != nil && image != nil }
     
-    public init(_ titleKey: LocalizedStringKey?, image: Image? = nil, style: DesignSystemButton.Style = .fill, color: Color = .designSystemPrimary, action: @escaping () -> Void) {
+    public init(
+        _ titleKey: LocalizedStringKey?,
+        image: Image? = nil,
+        style: DesignSystem.Style = .primary,
+        design: DesignSystem.ContentMode = .fill,
+        action: @escaping () -> Void) {
         self.titleKey = titleKey
         self.image = image
+        self.design = design
         self.style = style
-        self.color = color
         self.action = action
     }
     
-    public init(_ text: String?, image: Image? = nil, style: DesignSystemButton.Style = .fill, color: Color = .designSystemPrimary, action: @escaping () -> Void) {
+    public init(
+        _ text: String?,
+        image: Image? = nil,
+        style: DesignSystem.Style = .primary,
+        design: DesignSystem.ContentMode = .fill,
+        action: @escaping () -> Void
+    ) {
         self.titleKey = LocalizedStringKey(text ?? "")
         self.image = image
+        self.design = design
         self.style = style
-        self.color = color
         self.action = action
     }
     
-    public init(image: Image? = nil, style: DesignSystemButton.Style = .fill, color: Color = .designSystemPrimary, action: @escaping () -> Void) {
+    public init(
+        image: Image? = nil,
+        style: DesignSystem.Style = .primary,
+        design: DesignSystem.ContentMode = .fill,
+        action: @escaping () -> Void
+    ) {
         self.image = image
         self.style = style
-        self.color = color
+        self.design = design
         self.action = action
     }
     
@@ -129,7 +160,7 @@ public struct DesignSystemButton: View {
                 Spacer()
             }
         })
-        .style(style, color: color)
+        .designSystem(style, design: design)
     }
 }
 
@@ -143,23 +174,23 @@ public struct DesignSystemInput_Previews: PreviewProvider {
         VStack(spacing: 40) {
             
             HStack(spacing: 5) {
-                DesignSystemButton("Fill", style: .fill, action: { print("click") })
-                DesignSystemButton("Outline", style: .outline, action: { print("click") })
-                DesignSystemButton("Ghost", style: .ghost, action: { print("click") })
+                DesignSystemButton("Fill", design: .fill, action: { print("click") })
+                DesignSystemButton("Outline", design: .outline, action: { print("click") })
+                DesignSystemButton("Ghost", design: .ghost, action: { print("click") })
             }
             
             HStack(spacing: 5) {
-                DesignSystemButton("Danger", color: .designSystemDanger, action: { print("click") })
-                DesignSystemButton("Warning", color: .designSystemWarning, action: { print("click") })
-                DesignSystemButton("Success", color: .designSystemSuccess, action: { print("click") })
+                DesignSystemButton("Danger", style: .danger, action: { print("click") })
+                DesignSystemButton("Warning", style: .warning, action: { print("click") })
+                DesignSystemButton("Success", style: .success, action: { print("click") })
             }
             
             HStack(spacing: 5) {
-                DesignSystemButton("Disabled", style: .fill, action: { print("click") })
+                DesignSystemButton("Disabled", design: .fill, action: { print("click") })
                     .disabled(true)
-                DesignSystemButton("Disabled", style: .outline, action: { print("click") })
+                DesignSystemButton("Disabled", design: .outline, action: { print("click") })
                     .disabled(true)
-                DesignSystemButton("Disabled", style: .ghost, action: { print("click") })
+                DesignSystemButton("Disabled", design: .ghost, action: { print("click") })
                     .disabled(true)
             }
             
@@ -173,7 +204,7 @@ public struct DesignSystemInput_Previews: PreviewProvider {
             Text("Button style")
             
             Button(action: { print("click") }, label: { Text("Custom") })
-                .style(.outline, color: .designSystemFontBtn)
+                .designSystem(.primary, design: .outline)
         }
     .padding(10)
     }
