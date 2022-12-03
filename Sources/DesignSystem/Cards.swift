@@ -27,7 +27,7 @@ public struct DesignSystemCard: View {
         VStack(alignment: .leading, spacing: 0) {
             image?
                 .resizable()
-                .aspectRatio(contentMode: .fit)
+                .frame(height: 144.0, alignment: .center)
             Text(title)
                 .designSystemTypography(.h6)
                 .padding(.horizontal)
@@ -44,12 +44,12 @@ public struct DesignSystemCard: View {
                 .designSystemTypography(.p1)
                 .opacity(0.8)
                 .padding(.horizontal)
+                .padding(.bottom, 8)
             if !caption.isEmpty {
                 Divider()
-                    .padding(.vertical, 16)
                 Text(caption)
                     .designSystemTypography(.c2)
-                    .padding(.horizontal)
+                    .padding()
             }
         }
     }
@@ -61,11 +61,30 @@ struct DesignSystemCards_Previews: PreviewProvider {
     
     static var previews: some View {
         Group {
-            DesignSystemCard(image: img, title: "Title", subtitle: "Subtitle", text: text, caption: "Caption")
-            DesignSystemCard(image: img, title: "Title", subtitle: "Subtitle", text: text)
-            DesignSystemCard(title: "Title", subtitle: "Subtitle", text: text)
-            DesignSystemCard(title: "Title", text: text)
+            DesignSystemCard(
+                image: img,
+                title: "Title",
+                subtitle: "Subtitle",
+                text: text,
+                caption: "Caption"
+            )
+            DesignSystemCard(
+                image: img,
+                title: "Title",
+                subtitle: "Subtitle",
+                text: text
+            )
+            DesignSystemCard(
+                title: "Title",
+                subtitle: "Subtitle",
+                text: text
+            )
+            DesignSystemCard(
+                title: "Title",
+                text: text
+            )
         }
-        .previewLayout(.fixed(width: 300, height: 330))
+        .frame(width: 300.0)
+        .previewLayout(.sizeThatFits)
     }
 }

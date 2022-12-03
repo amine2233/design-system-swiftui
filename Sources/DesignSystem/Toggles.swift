@@ -8,25 +8,39 @@
 import SwiftUI
 
 public struct DesignSystemToggle: View {
-    
-    public enum Style {
-        case defaultStyle, primary, disabled, success, warning, danger, info
-    }
-    
+        
     @Binding var toggleState: Bool
-    @State private var style: Style
+    private var style: DesignSystem.Style
     private var titleKey: LocalizedStringKey
-    
-    public init(_ titleKey: LocalizedStringKey, isOn: Binding<Bool>, style: DesignSystemToggle.Style) {
+
+    @Environment(\.colorTheme) private var colorTheme: ColorTheme
+
+    public init(
+        _ titleKey: LocalizedStringKey,
+        isOn: Binding<Bool>,
+        style: DesignSystem.Style
+    ) {
         self.titleKey = titleKey
         self._toggleState = isOn
         self.style = style
     }
+
+    public var body: some View {
+        Toggle(titleKey, isOn: $toggleState)
+            .toggleStyle(
+                ColoredToggleStyle(
+                    onColor: style.color(colorTheme),
+                    offColor: style.color(colorTheme).opacity(0.1),
+                    thumbColor: .white
+                )
+            )
+    }
+
     
     private struct ColoredToggleStyle: ToggleStyle {
-        var onColor = Color.designSystemPrimary
-        var offColor = Color.designSystemDanger
-        var thumbColor = Color.white
+        var onColor: Color
+        var offColor: Color
+        var thumbColor: Color
         
         func makeBody(configuration: Self.Configuration) -> some View {
             Button(action: { configuration.isOn.toggle() } ) {
@@ -61,80 +75,12 @@ public struct DesignSystemToggle: View {
                 .background(Color.clear)
         }
     }
-    
-    public var body: some View {
-        switch style {
-        case .primary: return AnyView(primary())
-        case .success: return AnyView(success())
-        case .warning: return AnyView(warning())
-        case .danger: return AnyView(danger())
-        case .info: return AnyView(info())
-        default: return AnyView(defaultStyle())
-        }
-    }
-    
-    
-    fileprivate func defaultStyle() -> some View {
-        Toggle(titleKey, isOn: $toggleState)
-            .toggleStyle(
-                ColoredToggleStyle(
-                    onColor: .designSystemBasic,
-                    offColor: Color.designSystemBasic.opacity(0.1),
-                    thumbColor: .white))
-    }
-    
-    fileprivate func primary() -> some View {
-        Toggle(titleKey, isOn: $toggleState)
-            .toggleStyle(
-                ColoredToggleStyle(
-                    onColor: .designSystemPrimary,
-                    offColor: Color.designSystemPrimary.opacity(0.1),
-                    thumbColor: .white))
-    }
-    
-    fileprivate func success() -> some View {
-        Toggle(titleKey, isOn: $toggleState)
-            .toggleStyle(
-                ColoredToggleStyle(
-                    onColor: .designSystemSuccess,
-                    offColor: Color.designSystemSuccess.opacity(0.1),
-                    thumbColor: .white))
-    }
-    
-    fileprivate func info() -> some View {
-        Toggle(titleKey, isOn: $toggleState)
-            .toggleStyle(
-                ColoredToggleStyle(
-                    onColor: .designSystemInfo,
-                    offColor: Color.designSystemInfo.opacity(0.1),
-                    thumbColor: .white))
-    }
-    
-    
-    fileprivate func warning() -> some View {
-        Toggle(titleKey, isOn: $toggleState)
-            .toggleStyle(
-                ColoredToggleStyle(
-                    onColor: .designSystemWarning,
-                    offColor: Color.designSystemWarning.opacity(0.1),
-                    thumbColor: .white))
-    }
-    
-    
-    fileprivate func danger() -> some View {
-        Toggle(titleKey, isOn: $toggleState)
-            .toggleStyle(
-                ColoredToggleStyle(
-                    onColor: .designSystemDanger,
-                    offColor: Color.designSystemDanger.opacity(0.1),
-                    thumbColor: .white))
-    }
 }
 
 struct Toggles_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            DesignSystemToggle("defaultStyle", isOn: .constant(true), style: .defaultStyle)
+            DesignSystemToggle("defaultStyle", isOn: .constant(true), style: .default)
             DesignSystemToggle("primary", isOn: .constant(true), style: .primary)
             DesignSystemToggle("success", isOn: .constant(true), style: .success)
             DesignSystemToggle("info", isOn: .constant(true), style: .info)

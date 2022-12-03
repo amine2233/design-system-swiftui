@@ -62,8 +62,16 @@ struct DesignSystemNavigatorTop: View {
     var leftIconString: String
     var rightIconStrings : [String]
     var buttonCommits : [()->()] = [{}, {}, {}]
-    
-    init(title: String, subtitle: String = "", leftIconString: String, rightIconStrings: [String], buttonCommits: [() -> ()] = [{}, {}, {}]) {
+
+    @Environment(\.colorTheme) private var colorTheme: ColorTheme
+
+    init(
+        title: String,
+        subtitle: String = "",
+        leftIconString: String,
+        rightIconStrings: [String],
+        buttonCommits: [() -> ()] = [{}, {}, {}]
+    ) {
         self.title = title
         self.subtitle = subtitle
         self.leftIconString = leftIconString
@@ -89,8 +97,9 @@ struct DesignSystemNavigatorTop: View {
                 Spacer()
                 
                 VStack {
-                    Text(self.title).designSystemTypography(.h5, color: .black).offset(y: self.subtitle == "" ? 5: 0)
-                    Text(self.subtitle).designSystemTypography(.p2, color: .designSystemBasic).padding(.top, self.subtitle == "" ? 0: 5)
+                    Text(self.title).designSystemTypography(.h5, style: .info).offset(y: self.subtitle == "" ? 5: 0)
+                    Text(self.subtitle).designSystemTypography(.p2)
+                        .padding(.top, self.subtitle == "" ? 0: 5)
                 }
                 .offset(x: 23, y: 0)
                 
@@ -113,25 +122,29 @@ struct DesignSystemNavigatorTop: View {
         .padding(.vertical, 16)
         .padding(.horizontal, 16)
         //.padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top)
-        .background(Color.designSystemBackground)
-        .foregroundColor(Color.designSystemFontStd)
+        .background(colorTheme.background)
+        .foregroundColor(colorTheme.fontDisabled)
         .clipped()
-        .shadow(color: Color.designSystemBasic, radius: 3, x: 0, y: 0)
+        .shadow(color: colorTheme.primary, radius: 3, x: 0, y: 0)
         .animation(.default)
     }
     
 }
 
 public struct RightNavButtonStyle: ButtonStyle {
+    @Environment(\.colorTheme) private var colorTheme: ColorTheme
+
     public func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
-            .foregroundColor(configuration.isPressed ? Color.designSystemPrimary: Color.designSystemBasic)
+            .foregroundColor(configuration.isPressed ? colorTheme.primary: colorTheme.basic)
     }
 }
 
 public struct LeftNavButtonStyle: ButtonStyle {
+    @Environment(\.colorTheme) private var colorTheme: ColorTheme
+
     public func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
-            .foregroundColor(configuration.isPressed ? Color.designSystemPrimary: Color.black)
+            .foregroundColor(configuration.isPressed ? colorTheme.primary: colorTheme.fontStd)
     }
 }

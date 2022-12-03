@@ -11,25 +11,28 @@ public struct DesignSystemRadioButton: View {
     @Binding var isChecked: Bool
     
     @Environment(\.isEnabled) private var isEnabled: Bool
+    @Environment(\.colorTheme) private var colorTheme: ColorTheme
 
-    private var color: Color?
+    private var style: DesignSystem.Style
     private var titleKey: LocalizedStringKey
-    private var colorToUse: Color? { isEnabled ? color : .designSystemFontDisabled }
+    private var colorToUse: Color { isEnabled ? style.color(colorTheme) : colorTheme.fontDisabled }
     
-    public init(_ text: String = "",
-                isChecked: Binding<Bool>,
-                color: Color? = nil) {
+    public init(
+        _ text: String = "",
+        isChecked: Binding<Bool>,
+        style: DesignSystem.Style = .default
+    ) {
         self.titleKey = LocalizedStringKey(text)
         self._isChecked = isChecked
-        self.color = color
+        self.style = style
     }
 
     public var body: some View {
         HStack(spacing: titleKey.stringKey.isEmpty ? 0 : 6) {
             if $isChecked.wrappedValue {
-                CheckedButton(color: colorToUse ?? .designSystemPrimary)
+                CheckedButton(color: colorToUse)
             } else {
-                UncheckedButton(color: colorToUse ?? .designSystemBasic)
+                UncheckedButton(color: colorToUse)
             }
             Text(titleKey)
         }
@@ -37,7 +40,7 @@ public struct DesignSystemRadioButton: View {
 }
 
 private struct CheckedButton: View {
-    var color: Color = .designSystemPrimary
+    var color: Color
     
     var body: some View {
         ZStack {
@@ -55,7 +58,7 @@ private struct CheckedButton: View {
 }
 
 private struct UncheckedButton: View {
-    var color: Color = .designSystemBasic
+    var color: Color
     
     var body: some View {
         ZStack {
@@ -80,11 +83,12 @@ struct RadioButton_Previews: PreviewProvider {
             DesignSystemRadioButton(isChecked: .constant(false))
             DesignSystemRadioButton(isChecked: .constant(true)).disabled(true)
             DesignSystemRadioButton(isChecked: .constant(false)).disabled(true)
-            DesignSystemRadioButton(isChecked: .constant(false), color: .designSystemDanger)
-            DesignSystemRadioButton(isChecked: .constant(false), color: .designSystemWarning)
-            DesignSystemRadioButton(isChecked: .constant(false), color: .designSystemSuccess)
+            DesignSystemRadioButton(isChecked: .constant(false), style: .primary)
+            DesignSystemRadioButton(isChecked: .constant(false), style: .danger)
+            DesignSystemRadioButton(isChecked: .constant(false), style: .warning)
+            DesignSystemRadioButton(isChecked: .constant(false), style: .success)
             DesignSystemRadioButton("Text", isChecked: .constant(true))
-            DesignSystemRadioButton("Text and custom color", isChecked: .constant(true), color: .designSystemWarning)
+            DesignSystemRadioButton("Text and custom color", isChecked: .constant(true), style: .warning)
         }
     }
 }

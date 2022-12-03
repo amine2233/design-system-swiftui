@@ -7,62 +7,52 @@
 
 import SwiftUI
 
-public extension Color {
-    
-    // MARK: Basic Colors
-    
-    static let designSystemBackground = Color("background", bundle: .module)
-    static let designSystemBasic = Color("basic", bundle: .module)
-    static let designSystemPrimary = Color("primary", bundle: .module)
-    
-    // MARK: Font Colors
-    
-    /// Standard Font Color
-    static let designSystemFontStd = Color("font_std", bundle: .module)
-    /// Hint Font Color
-    static let designSystemFontHint = Color("font_hint", bundle: .module)
-    /// Disabled Font Color
-    static let designSystemFontDisabled = Color("font_disabled", bundle: .module)
-    /// Button Font Color
-    static let designSystemFontBtn = Color("font_button", bundle: .module)
-    
-    // MARK: Semantic Colors
-    
-    static let designSystemDanger = Color("danger", bundle: .module)
-    static let designSystemInfo = Color("info", bundle: .module)
-    static let designSystemSuccess = Color("success", bundle: .module)
-    static let designSystemWarning = Color("warning", bundle: .module)
-    
-    // MARK: State Colors
-    
-    /// Active State Color - Primary Style
-    static let designSystemActivePrimary = Color("activePrimary", bundle: .module)
-    /// Active State Color - Basic Style
-    static let designSystemActiveBasic = Color("activeBasic", bundle: .module)
+extension Color {
+    static let designSystem: ColorTheme = Environment(\.colorTheme).wrappedValue
+}
+
+private struct DSRectangle: View {
+    @Environment(\.colorTheme) private var colorTheme
+    let key: KeyPath<ColorTheme, Color>
+
+    init(key: KeyPath<ColorTheme, Color>) {
+        self.key = key
+    }
+
+    var body: some View {
+        Rectangle()
+            .foregroundColor(colorTheme[keyPath: key])
+    }
 }
 
 struct Color_Previews: PreviewProvider {
     static var previews: some View {
         VStack(alignment: .center, spacing: 10) {
             HStack{
-                Rectangle().size(CGSize(width: 50, height: 50))
-                    .foregroundColor(.designSystemBasic)
-                Rectangle().size(CGSize(width: 50, height: 50))
-                    .foregroundColor(.designSystemPrimary)
-                Rectangle().size(CGSize(width: 50, height: 50))
-                    .foregroundColor(.designSystemSuccess)
-                Rectangle().size(CGSize(width: 50, height: 50))
-                .foregroundColor(.designSystemInfo)
-                Rectangle().size(CGSize(width: 50, height: 50))
-                .foregroundColor(.designSystemWarning)
-                Rectangle().size(CGSize(width: 50, height: 50))
-                .foregroundColor(.designSystemDanger)
+                DSRectangle(key: \.basic)
+                DSRectangle(key: \.background)
+                DSRectangle(key: \.primary)
+                DSRectangle(key: \.success)
+                DSRectangle(key: \.info)
+                DSRectangle(key: \.warning)
+                DSRectangle(key: \.danger)
             }
-            Text("Hello, World!")
-                .foregroundColor(.designSystemActivePrimary)
-                .background(Color.designSystemActiveBasic)
+
+            HStack{
+                DSRectangle(key: \.basic)
+                DSRectangle(key: \.background)
+                DSRectangle(key: \.primary)
+                DSRectangle(key: \.success)
+                DSRectangle(key: \.info)
+                DSRectangle(key: \.warning)
+                DSRectangle(key: \.danger)
+            }
+            .environment(\.colorTheme, ColorThemeDefault2())
+
+            Text("Colors!")
                 .environment(\.colorScheme, .dark)
         }
-    .padding()
+        .padding()
+        .previewLayout(.sizeThatFits)
     }
 }
